@@ -57,19 +57,12 @@ the in-browser game `2048 <https://en.wikipedia.org/wiki/2048_(video_game)>`_::
 
   agentos install env-2048
 
-The above command not only installs the 2048 environment into your agent
+The above command [#cmd-todo]_ not only installs the 2048 environment into your agent
 directory, but it also updates our agent directory's ``components.ini`` file to
 record the specifics of the components we've installed.
 
-  TODO: Does this make sense as a subcommand for ``agentos`` or as its own
-  command (e.g. ``acs install ...``)....
-
-Our agent will now run against the 2048 game environment.
+Our agent will now run [#wiring-todo]_ against the 2048 game environment.
     
-    TODO: Should there be manual wiring here to make our agent play in the env,
-    or should we assume that this is the environment because you've already
-    called install?
-
 Our agent still lacks the ability to learn.  Let's fix that by installing a
 `policy that learns via the SARSA algorithm
 <https://en.wikipedia.org/wiki/State%E2%80%93action%E2%80%93reward%E2%80%93state%E2%80%93action>`_
@@ -199,3 +192,13 @@ Footnotes
 
 .. [#] TODO1
 .. [#] TODO2
+
+.. [#cmd-todo] Does this make sense as a subcommand for ``agentos`` or as its own
+               command (e.g. ``acs install ...``)....
+
+.. [#wiring-todo] Should there be manual wiring here to make our agent play in
+the env, or should we assume that this is the environment because you've
+already called install?
+
+
+
