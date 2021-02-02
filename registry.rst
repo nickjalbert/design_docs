@@ -141,15 +141,15 @@ MVP
         hash1: version_1_name
         hash2: version_2_name
 
-for example::
+  for example::
 
-  env-2048:
-    type: environment
-    description: "An environment that simulates the 2048 game"
-    source: https://github.com/agentos-project/env-2048/
-    releases:
-        0fdea27: 1.0.0
-        33379a8: 1.1.0
+    env-2048:
+      type: environment
+      description: "An environment that simulates the 2048 game"
+      source: https://github.com/agentos-project/env-2048/
+      releases:
+          0fdea27: 1.0.0
+          33379a8: 1.1.0
 
 * Each component will be a (v0: Python) project stored in a github repo that
   will minimally contain the following files:
