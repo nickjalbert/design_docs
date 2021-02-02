@@ -62,7 +62,7 @@ directory, but it also updates our agent directory's ``components.ini`` file to
 record the specifics of the components we've installed.
 
 Our agent will now run [#wiring-todo]_ against the 2048 game environment.
-    
+
 Our agent still lacks the ability to learn.  Let's fix that by installing a
 `policy that learns via the SARSA algorithm
 <https://en.wikipedia.org/wiki/State%E2%80%93action%E2%80%93reward%E2%80%93state%E2%80%93action>`_
@@ -103,7 +103,7 @@ MVP
   component_name:
     type: [policy | environment | algorithm],
     source: [link_to_github_repo],
-    releases: 
+    releases:
       hash1: version_1_name,
       hash2: version_2_name,
   ```
@@ -134,7 +134,7 @@ MVP
 * ACS will have an ``install`` method that will:
 
   * Find the components location based on its registry entry
-  
+
   * Download the component from github
 
   * Merge the component requirements into the existing agent directory's
@@ -191,7 +191,8 @@ Footnotes
 =========
 
 .. [#abstractions-todo] I'm not sure if these are the right abstractions, but
-                        suspect we'll get a better handle on this as we build.
+                        I suspect we'll get a better handle on this as we
+                        build.
 
 .. [#cmd-todo] Does this make sense as a subcommand for ``agentos`` or as its
                own command (e.g. ``acs install ...``)....
