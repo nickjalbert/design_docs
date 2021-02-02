@@ -9,7 +9,7 @@ Abstract
 This document proposes the **AgentOS component system (ACS)**.  ACS allows for
 easy composition and reuse of key top-level AgentOS components (e.g.
 environments and policies) much like ``pip`` does for Python and ``APT`` does
-for Debian Linux.[#]_
+for Debian Linux. [#]_
 
 Rationale
 =========
