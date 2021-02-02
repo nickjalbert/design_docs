@@ -36,6 +36,11 @@ The ACS enables this vision by:
 Demo
 ====
 
+This section illustrates the usage of ACS by way of example commands and code.
+
+Interaction with the registry
+-----------------------------
+
 First, ensure AgentOS is installed in your environment::
 
   pip install agentos
@@ -92,6 +97,34 @@ Now suppose we become convinced that a `Deep Q-Learning network
 
 Again, ``components.ini`` will be updated to reflect that we are now using a
 DQN-based learning algorithm instead of a SARSA-based learning algorithm.
+
+Using components within code
+---------------------------
+
+Let's dig into our minimal agent to see how we access our components programmatically::
+
+    # Save this code in ./simple_agent.py
+    from agentos import Agent
+    from agentos import acs
+    
+    class SimpleAgent(Agent):
+        def advance(self):
+            acs.policy.train(acs.env)
+            done = False
+            obs = acs.environment.reset()
+            next_action = acs.policy.choose(obs)
+            obs, reward, done, _ = acs.environment.step(next_action)
+            return done
+
+The ``acs`` module automatically loads the top-level components under shortcuts
+such as ``acs.policy`` and ``acs.environment``.  If you have more than one
+component installed for a particular role (e.g. two complementary environments)
+then you can access it via the component name in the ``acs`` module::
+
+  acs.env-2048.step()
+  ...
+  acs.env-cartpole.step()
+
 
 MVP
 ===
