@@ -133,13 +133,13 @@ MVP
 
 * Each registry entry will be structured as follows::
 
-  component_name:
-    type: [policy | environment | algorithm]
-    description: [component description]
-    source: [link_to_github_repo]
-    releases:
-      hash1: version_1_name
-      hash2: version_2_name
+    component_name:
+      type: [policy | environment | algorithm]
+      description: [component description]
+      source: [link_to_github_repo]
+      releases:
+        hash1: version_1_name
+        hash2: version_2_name
 
 for example::
 
