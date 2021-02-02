@@ -49,13 +49,13 @@ agent is not particularly interesting though, so let's flesh it out::
 
   agentos install env-2048
 
-  TODO: Does this make sense as a subcommand for ``agentos`` or as its own
-  command (e.g. ``acl install ...``)....
-
 The above commands installs an environment that models the in-browser game
 `2048 <https://en.wikipedia.org/wiki/2048_(video_game)>`_. The command also
 creates a ``components.ini`` file in our agent directory that records the
 specifics of the environment we've installed.
+
+  TODO: Does this make sense as a subcommand for ``agentos`` or as its own
+  command (e.g. ``acl install ...``)....
 
 Our agent will now run against the environment.
     
