@@ -131,8 +131,9 @@ MVP
 * ACS will be able to access a centralized registry of policies and
   environments (V0: the list will be a yaml file stored in the agentos repo).
 
-* Each registry entry will be structured as follows::
+* Each registry entry will be structured as follows:
 
+  ```
     component_name:
       type: [policy | environment | algorithm]
       description: [component description]
@@ -140,6 +141,7 @@ MVP
       releases:
         hash1: version_1_name
         hash2: version_2_name
+  ```
 
 for example::
 
