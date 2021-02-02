@@ -140,7 +140,7 @@ MVP
       hash1: version_1_name,
       hash2: version_2_name,
 
-  for example::
+for example::
 
   env-2048:
     type: environment
