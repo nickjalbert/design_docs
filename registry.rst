@@ -34,29 +34,23 @@ The ACS enables this vision by:
 Demo
 ====
 
-First, ensure AgentOS is installed in your environment:
+First, ensure AgentOS is installed in your environment::
 
-```
-pip install agentos
-```
+  pip install agentos
 
-Then create a new agent:
+Then create a new agent::
 
-```
-mkdir my_agent
-cd my_agent
-agentos init
-```
+  mkdir my_agent
+  cd my_agent
+  agentos init
 
-This generates a minimal agent in your `my_agent` directory.  The minimal agent
-is not particularly interesting though, so let's flesh it out:
+This generates a minimal agent in your ``my_agent`` directory.  The minimal
+agent is not particularly interesting though, so let's flesh it out::
 
-```
-agentos install env-2048
-```
+  agentos install env-2048
 
-    TODO: Does this make sense as a subcommand for ``agentos`` or as its own
-    command (e.g. ``acl install ...``)....
+  TODO: Does this make sense as a subcommand for ``agentos`` or as its own
+  command (e.g. ``acl install ...``)....
 
 The above commands installs an environment that models the in-browser game
 `2048 <https://en.wikipedia.org/wiki/2048_(video_game)>`_. The command also
@@ -72,35 +66,30 @@ Our agent will now run against the environment.
 Our agent still lacks the ability to learn.  Let's fix that by installing a
 `SARSA policy
 <https://en.wikipedia.org/wiki/State%E2%80%93action%E2%80%93reward%E2%80%93state%E2%80%93action>`_
-in our agent.
+in our agent::
 
-```
-agentos install policy-sarsa
-```
+  agentos install policy-sarsa
 
 After the install completes, our agent will now use SARSA to learn how to play
-2048.  Run the agent as follows:
+2048.  Run the agent as follows::
 
-```
-agentos run
-```
+  agentos run
 
-Now suppose that after running SARSA for a while, we become convinced that a
-Deep Q-Learning network would be more amenable to 2048.  Switching our policy
-and learning strategy is as easy as:
+Now suppose we become convinced that a `Deep Q-Learning network
+<https://en.wikipedia.org/wiki/Q-learning>`_ would be more amenable to 2048.
+Switching our policy and learning strategy is as easy as::
 
-```
-agentos install policy-dqn
-```
+  agentos install policy-dqn
 
 Various hyperparameters and configuration variables can be updated and modified
-in `configuration.ini`.
+in ``configuration.ini``.
 
 
 MVP
 ===
 
-* ACS will be able to access a centralized registry of policies and environments
+* ACS will be able to access a centralized registry of policies and
+  environments
 
 
 Long Term Plans
