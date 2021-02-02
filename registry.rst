@@ -9,7 +9,7 @@ Abstract
 This document proposes the **AgentOS component system (ACS)**.  ACS allows for
 easy composition and reuse of key top-level AgentOS components (e.g.
 environments and policies) much like ``pip`` does for Python and ``APT`` does
-for Debian Linux. [#]_
+for Debian Linux.
 
 Rationale
 =========
@@ -19,7 +19,7 @@ accelerate the research and development of agent systems.  These abstractions
 provide a straightforward way to swap in existing components to create new
 agents with different behaviors and learning strategies; as long as each
 component respects its interface, the specifics of its implementation should
-not matter for composition. [#]_
+not matter for composition.
 
 The ACS enables this vision by:
 
@@ -190,15 +190,12 @@ See Also
 Footnotes
 =========
 
-.. [#] TODO1
-.. [#] TODO2
-
-.. [#cmd-todo] Does this make sense as a subcommand for ``agentos`` or as its own
-               command (e.g. ``acs install ...``)....
+.. [#cmd-todo] Does this make sense as a subcommand for ``agentos`` or as its
+               own command (e.g. ``acs install ...``)....
 
 .. [#wiring-todo] Should there be manual wiring here to make our agent play in
-the env, or should we assume that this is the environment because you've
-already called install?
+                  the env, or should we assume that this is the environment
+                  because you've already called install?
 
 
 
