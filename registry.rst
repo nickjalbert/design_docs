@@ -45,67 +45,148 @@ Then create a new agent::
   agentos init
 
 This generates a minimal agent in your ``my_agent`` directory.  The minimal
-agent is not particularly interesting though, so let's flesh it out::
+agent is not particularly interesting though, so let's flesh it out.
+
+First let's see the environments available to our agent::
+
+  agentos search environment
+
+The above command will search for all components of type ``environment`` and
+show you a listing.  Let's install the ``env-2048`` environment that models the
+in-browser game `2048 <https://en.wikipedia.org/wiki/2048_(video_game)>`_::
 
   agentos install env-2048
 
-The above commands installs an environment that models the in-browser game
-`2048 <https://en.wikipedia.org/wiki/2048_(video_game)>`_. The command also
-creates a ``components.ini`` file in our agent directory that records the
-specifics of the environment we've installed.
+The above command not only installs the 2048 environment in your agent
+directory, but it also updates the ``components.ini`` file in our agent
+directory that records the specifics of the components we've installed.
 
   TODO: Does this make sense as a subcommand for ``agentos`` or as its own
-  command (e.g. ``acl install ...``)....
+  command (e.g. ``acs install ...``)....
 
-Our agent will now run against the environment.
+Our agent will now run against the 2048 game environment.
     
     TODO: Should there be manual wiring here to make our agent play in the env,
     or should we assume that this is the environment because you've already
-    called install.
+    called install?
 
 Our agent still lacks the ability to learn.  Let's fix that by installing a
-`SARSA policy
+`policy that learns via the SARSA algorithm
 <https://en.wikipedia.org/wiki/State%E2%80%93action%E2%80%93reward%E2%80%93state%E2%80%93action>`_
 in our agent::
 
   agentos install policy-sarsa
 
-After the install completes, our agent will now use SARSA to learn how to play
-2048.  Run the agent as follows::
+After the install completes, our ``components.ini`` will again be updated to
+record the fact that our agent will be using SARSA to learn how to play 2048.
+Run the agent as follows::
 
   agentos run
 
+As you let your agent run, you'll get periodic updates on its perfomance
+improvement as it gains more experience playing 2048 and learns via the SARSA
+algorithm.
+
 Now suppose we become convinced that a `Deep Q-Learning network
 <https://en.wikipedia.org/wiki/Q-learning>`_ would be more amenable to 2048.
-Switching our policy and learning strategy is as easy as::
+Switching our learning strategy and policy is as easy as running::
 
   agentos install policy-dqn
 
-Various hyperparameters and configuration variables can be updated and modified
-in ``configuration.ini``.
-
+Again, ``components.ini`` will be updated to reflect that we are now using a
+DQN-based learning algorithm instead of a SARSA-based learning algorithm.
 
 MVP
 ===
 
 * ACS will be able to access a centralized registry of policies and
-  environments
+  environments (V0: the list will be a yaml file stored in the agentos repo).
+
+* Each registry entry will be structured as follows:
+
+  ```
+  component_name:
+    type: [policy | environment],
+    source: [link_to_github_repo],
+    releases: 
+      hash1: version_1_name,
+      hash2: version_2_name,
+  ```
+
+  for example:
+
+  ```
+  env-2048:
+    type: environment
+    source: https://github.com/agentos-project/env-2048/
+    releases:
+        0fdea27: 1.0.0,
+        33379a8: 1.1.0,
+  ```
+
+* Each component will be a (v0: Python) project stored in a github repo that
+  will minimally contain the following files:
+
+  * A ``definition.py`` that will contain the description of that component's
+    ``components.ini`` entry.
+
+  * A ``requirements.txt`` that will contain the project requirements
+
+* ACS will have an ``search`` method that will:
+
+  * List all components in the registry matching the search query.
+
+* ACS will have an ``install`` method that will:
+
+  * Find the components location based on its registry entry
+  
+  * Download the component from github
+
+  * Merge the component requirements into the existing agent directory's
+    requirements (TODO: and also install?)
+
+  * Update the agent directory's ``components.ini`` to include the component in
+    its default configuration.
+
 
 
 Long Term Plans
 ===============
 
-TODO
-====
+* A simple way for component authors to submit components to the registry via
+  command-line and web interface.
 
-* How to configure hyperparameters?
 
-* How to reuse a model from a previous run?
+FAQ
+===
+
+**Q:** My [complex component] has a number of hyperparameters that need to be
+tuned based on the particulars of the environment and the agent.  How do I do
+this?
+
+**A:** Each component maintains exposes a configuration in its ``components.ini``
+entry. This allows for both manual tweaking of hyperparameters as well as
+programmatic exploration and tuning.
+
+**Q:** How can I reuse a model from a previous run?
+
+**A:** Models themselves are exposed as top-level components.  ``agentos run``
+has tooling that allows you to dynamically specify when and how to reuse
+existing models.
+
+
+
+TODO and open questions
+=======================
+
+* How to handle component dependencies (Both package and component-level)?
 
 * What are the key components that we want to expose in our registry?
   Candidates: Agents, Policies, Environments, Learning Strategies, Memory
-  Stores.
+  Stores, Models.
 
 See Also
 ========
 * `AgentOS Issue 68: Registery for Envs, Policies, and Agents <https://github.com/agentos-project/agentos/issues/68>`_
+* `PEP 301 -- Package Index and Metadata for Distutils <https://www.python.org/dev/peps/pep-0301/>`_
+* `PEP 243 -- Module Repository Upload Mechanism <https://www.python.org/dev/peps/pep-0243/>`_
