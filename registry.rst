@@ -7,9 +7,9 @@ Abstract
 ========
 
 This document proposes the **AgentOS component system (ACS)**.  ACS allows for
-easy composition and reuse of key top-level AgentOS components (Environments and
-Policies) much like ``pip`` does for Python
-and ``APT`` does for Debian Linux.
+easy composition and reuse of key top-level AgentOS components (e.g.
+environments and policies) much like ``pip`` does for Python and ``APT`` does
+for Debian Linux.
 
 Rationale
 =========
@@ -47,19 +47,19 @@ Then create a new agent::
 This generates a minimal agent in your ``my_agent`` directory.  The minimal
 agent is not particularly interesting though, so let's flesh it out.
 
-First let's see the environments available to our agent::
+First let's see the environments available to our agent in the ACS::
 
   agentos search environment
 
-The above command will search for all components of type ``environment`` and
-show you a listing.  Let's install the ``env-2048`` environment that models the
-in-browser game `2048 <https://en.wikipedia.org/wiki/2048_(video_game)>`_::
+The above command returns the listings for all components of type
+``environment``.  Now, let's install the ``env-2048`` environment that models
+the in-browser game `2048 <https://en.wikipedia.org/wiki/2048_(video_game)>`_::
 
   agentos install env-2048
 
-The above command not only installs the 2048 environment in your agent
-directory, but it also updates the ``components.ini`` file in our agent
-directory that records the specifics of the components we've installed.
+The above command not only installs the 2048 environment into your agent
+directory, but it also updates our agent directory's ``components.ini`` file to
+record the specifics of the components we've installed.
 
   TODO: Does this make sense as a subcommand for ``agentos`` or as its own
   command (e.g. ``acs install ...``)....
@@ -73,13 +73,15 @@ Our agent will now run against the 2048 game environment.
 Our agent still lacks the ability to learn.  Let's fix that by installing a
 `policy that learns via the SARSA algorithm
 <https://en.wikipedia.org/wiki/State%E2%80%93action%E2%80%93reward%E2%80%93state%E2%80%93action>`_
-in our agent::
+into our agent::
 
   agentos install policy-sarsa
 
 After the install completes, our ``components.ini`` will again be updated to
 record the fact that our agent will be using SARSA to learn how to play 2048.
-Run the agent as follows::
+
+
+We can now run the agent as follows::
 
   agentos run
 
@@ -88,7 +90,7 @@ improvement as it gains more experience playing 2048 and learns via the SARSA
 algorithm.
 
 Now suppose we become convinced that a `Deep Q-Learning network
-<https://en.wikipedia.org/wiki/Q-learning>`_ would be more amenable to 2048.
+<https://en.wikipedia.org/wiki/Q-learning>`_ would be more amenable to learning 2048.
 Switching our learning strategy and policy is as easy as running::
 
   agentos install policy-dqn
