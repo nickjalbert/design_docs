@@ -159,9 +159,8 @@ MVP
 
   * A ``requirements.txt`` that will contain the project requirements
 
-* ACS will have an ``search`` method that will:
-
-  * List all components in the registry matching the search query.
+* ACS will have an ``search`` method that will list all components in the
+  registry matching the search query.
 
 * ACS will have an ``install`` method that will:
 
