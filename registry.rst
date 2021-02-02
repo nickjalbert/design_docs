@@ -176,8 +176,8 @@ MVP
 
 * Components can be programatically accessed from the ``acs`` module
 
-* The minimal agent (``agentos init``) will be ACS aware and behave as
-  expected
+* The minimal agent (``agentos init``) will be ACS aware and incorporate
+  basic components with minimal required edits
 
 
 
