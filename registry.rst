@@ -9,7 +9,7 @@ Abstract
 This document proposes the **AgentOS component system (ACS)**.  ACS allows for
 easy composition and reuse of key top-level AgentOS components (e.g.
 environments and policies) much like ``pip`` does for Python and ``APT`` does
-for Debian Linux.
+for Debian Linux.[#]_
 
 Rationale
 =========
@@ -19,12 +19,12 @@ accelerate the research and development of agent systems.  These abstractions
 provide a straightforward way to swap in existing components to create new
 agents with different behaviors and learning strategies; as long as each
 component respects its interface, the specifics of its implementation should
-not matter for composition.
+not matter for composition. [#]_
 
 The ACS enables this vision by:
 
-* Maintaining a centralized registry of Agents, Policies, Learning Strategies,
-  and Environments.
+* Maintaining a centralized registry of agents, policies, learning strategies,
+  and environments.
 
 * Providing a command-line interface to install these components
 
@@ -85,13 +85,13 @@ We can now run the agent as follows::
 
   agentos run
 
-As you let your agent run, you'll get periodic updates on its perfomance
+As you let your agent run, you'll get periodic updates on its performance
 improvement as it gains more experience playing 2048 and learns via the SARSA
 algorithm.
 
 Now suppose we become convinced that a `Deep Q-Learning network
-<https://en.wikipedia.org/wiki/Q-learning>`_ would be more amenable to learning 2048.
-Switching our learning strategy and policy is as easy as running::
+<https://en.wikipedia.org/wiki/Q-learning>`_ would be more amenable to learning
+2048.  Switching our learning strategy and policy is as easy as running::
 
   agentos install policy-dqn
 
@@ -108,7 +108,7 @@ MVP
 
   ```
   component_name:
-    type: [policy | environment],
+    type: [policy | environment | algorithm],
     source: [link_to_github_repo],
     releases: 
       hash1: version_1_name,
@@ -192,3 +192,10 @@ See Also
 * `AgentOS Issue 68: Registery for Envs, Policies, and Agents <https://github.com/agentos-project/agentos/issues/68>`_
 * `PEP 301 -- Package Index and Metadata for Distutils <https://www.python.org/dev/peps/pep-0301/>`_
 * `PEP 243 -- Module Repository Upload Mechanism <https://www.python.org/dev/peps/pep-0243/>`_
+
+
+Footnotes
+=========
+
+.. [#] TODO1
+.. [#] TODO2
