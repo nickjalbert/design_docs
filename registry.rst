@@ -24,7 +24,7 @@ not matter for composition.
 The ACS enables this vision by:
 
 * Maintaining a centralized registry of agents, policies, learning strategies,
-  and environments.
+  and environments. [#abstractions-todo]_
 
 * Providing a command-line interface to install these components
 
@@ -189,6 +189,9 @@ See Also
 
 Footnotes
 =========
+
+.. [#abstractions-todo] I'm not sure if these are the right abstractions, but
+                        suspect we'll get a better handle on this as we build.
 
 .. [#cmd-todo] Does this make sense as a subcommand for ``agentos`` or as its
                own command (e.g. ``acs install ...``)....
