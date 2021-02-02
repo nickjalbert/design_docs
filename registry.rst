@@ -30,7 +30,7 @@ The ACS enables this vision by:
 
 * Providing a command-line interface to install these components
 
-* Providing a configuration system for composing components within agents
+* Providing a module for composing components within agents
 
 
 Demo
