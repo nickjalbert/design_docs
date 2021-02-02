@@ -23,12 +23,14 @@ not matter for composition.
 
 The ACS enables this vision by:
 
-* Maintaining a centralized registry of agents, policies, learning strategies,
-  and environments. [#abstractions-todo]_
+* Maintaining a centralized registry of agent components including policies,
+  learning strategies, and environments. [#abstractions-todo]_
+
+* Providing a versioning system for these components
 
 * Providing a command-line interface to install these components
 
-* Providing a versioning system for these components
+* Providing a configuration system for composing components within agents
 
 
 Demo
