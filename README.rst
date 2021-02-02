@@ -15,8 +15,10 @@ If you'd like to contribute a design document or proposal, please:
 
 * Fork this repo
 
-* Write your document in
-  `reStructuredText <https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html`_.
+* Write your document in `reStructuredText
+  <https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html>`_.
+  Also, see the `reStructuredText Quick Reference
+  <https://docutils.sourceforge.io/docs/user/rst/quickref.html>`_.
 
 * Issue a pull request from your fork into the main repo and assign one of the
   maintainers to review.
