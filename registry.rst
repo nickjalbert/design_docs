@@ -134,20 +134,22 @@ MVP
 * Each registry entry will be structured as follows::
 
   component_name:
-    type: [policy | environment | algorithm],
-    source: [link_to_github_repo],
+    type: [policy | environment | algorithm]
+    description: [component description]
+    source: [link_to_github_repo]
     releases:
-      hash1: version_1_name,
-      hash2: version_2_name,
+      hash1: version_1_name
+      hash2: version_2_name
 
 for example::
 
   env-2048:
     type: environment
+    description: "An environment that simulates the 2048 game"
     source: https://github.com/agentos-project/env-2048/
     releases:
-        0fdea27: 1.0.0,
-        33379a8: 1.1.0,
+        0fdea27: 1.0.0
+        33379a8: 1.1.0
 
 * Each component will be a (v0: Python) project stored in a github repo that
   will minimally contain the following files:
