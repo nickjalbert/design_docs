@@ -49,7 +49,7 @@ Then create a new agent::
 This generates a minimal agent in your ``my_agent`` directory.  The minimal
 agent is not particularly interesting though, so let's flesh it out.
 
-First let's see the environments available to our agent in the ACS::
+Let's take a look at the environments available to our agent in the ACS::
 
   agentos search environment
 
