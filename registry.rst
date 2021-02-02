@@ -103,7 +103,6 @@ Using components within code
 
 Let's dig into our minimal agent to see how we access our components programmatically::
 
-    # Save this code in ./simple_agent.py
     from agentos import Agent
     from agentos import acs
     
@@ -132,27 +131,23 @@ MVP
 * ACS will be able to access a centralized registry of policies and
   environments (V0: the list will be a yaml file stored in the agentos repo).
 
-* Each registry entry will be structured as follows:
+* Each registry entry will be structured as follows::
 
-  ```
   component_name:
     type: [policy | environment | algorithm],
     source: [link_to_github_repo],
     releases:
       hash1: version_1_name,
       hash2: version_2_name,
-  ```
 
-  for example:
+  for example::
 
-  ```
   env-2048:
     type: environment
     source: https://github.com/agentos-project/env-2048/
     releases:
         0fdea27: 1.0.0,
         33379a8: 1.1.0,
-  ```
 
 * Each component will be a (v0: Python) project stored in a github repo that
   will minimally contain the following files:
@@ -177,6 +172,11 @@ MVP
 
   * Update the agent directory's ``components.ini`` to include the component in
     its default configuration.
+
+* Components can be programatically accessed from the ``acs`` module
+
+* The minimal agent (``agentos init``) will be ACS aware and behave as
+  expected
 
 
 
@@ -225,9 +225,9 @@ See Also
 Footnotes
 =========
 
-.. [#abstractions-todo] I'm not sure if these are the right abstractions, but
-                        I suspect we'll get a better handle on this as we
-                        build.
+.. [#abstractions-todo] I'm not sure if these are the right types of
+                        abstractions, but I suspect we'll get a better
+                        handle on this as we build.
 
 .. [#cmd-todo] Does this make sense as a subcommand for ``agentos`` or as its
                own command (e.g. ``acs install ...``)....
