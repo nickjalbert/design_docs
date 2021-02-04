@@ -25,15 +25,15 @@ If you'd like to contribute a design document or proposal, please:
 
 * If the reviewer:
 
-    * Thinks the design is generally in the right ballpark but needs some minor
-      to moderate revision and brainstorming, the PR gets an 'LGTM' and merges
-      after any immediate nits are addressed.
+  * Thinks the design is generally in the right ballpark but needs some minor
+    to moderate revision and brainstorming, the PR gets an 'LGTM' and merges
+    after any immediate nits are addressed.
 
-    * Thinks the design needs more foundational revisions, the PR gets closed
-      and the reviewer and reviewee sync on next steps.
+  * Thinks the design needs more foundational revisions, the PR gets closed
+    and the reviewer and reviewee sync on next steps.
 
-    * Wants to discuss over Skype or in person, the PR remains open until the
-      meeting.
+  * Wants to discuss over Skype or in person, the PR remains open until the
+    meeting.
 
 * Once a design doc is merged, additional updates come as new PRs.
 
