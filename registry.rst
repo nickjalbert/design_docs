@@ -68,10 +68,9 @@ The above command not only installs the 2048 environment into your agent
 directory, but it also updates our agent directory's ``components.ini`` file to
 record the specifics of the components we've installed.
 
-Our agent will now run against the 2048 game environment.
-
-Our agent still lacks the ability to learn.  Let's fix that by installing a
-`policy that learns via the SARSA algorithm
+Our agent will now run against the 2048 game environment. However, our agent
+still lacks the ability to learn.  Let's fix that by installing a `policy
+component that learns via the SARSA algorithm
 <https://en.wikipedia.org/wiki/State%E2%80%93action%E2%80%93reward%E2%80%93state%E2%80%93action>`_
 into our agent::
 
@@ -79,7 +78,6 @@ into our agent::
 
 After the install completes, our ``components.ini`` will again be updated to
 record the fact that our agent will be using SARSA to learn how to play 2048.
-
 
 We can now run the agent as follows::
 
@@ -95,8 +93,17 @@ Now suppose we become convinced that a `Deep Q-Learning network
 
   agentos install policy dqn
 
-Again, ``components.ini`` will be updated to reflect that we are now using a
-DQN-based learning algorithm instead of a SARSA-based learning algorithm.
+Because you are installing a second policy, ACS will ask you which policy you'd
+like to make default.  All installed components are always programmatically
+accessible, but ACS provides shortcuts for accessing default components.
+
+Go ahead and select ``dqn`` as the default policy.  Again, ``components.ini``
+will be updated to reflect that we are now using a DQN-based learning algorithm
+instead of a SARSA-based learning algorithm.
+
+Now when you run your agent again (``agentos run``) your agent will be using
+Q-learning with a deep Q network to learn 2048.
+
 
 Using components within code
 ---------------------------
@@ -115,14 +122,14 @@ Let's dig into our minimal agent to see how we access our components programmati
             obs, reward, done, _ = acs.environment.step(next_action)
             return done
 
-The ``acs`` module automatically loads the top-level components under shortcuts
-such as ``acs.policy`` and ``acs.environment``.  If you have more than one
-component installed for a particular role (e.g. two complementary environments)
-then you can access it via the component name in the ``acs`` module::
+The ``acs`` module automatically loads default components under shortcuts such
+as ``acs.policy`` and ``acs.environment``.  If you have more than one component
+installed for a particular role (e.g. two complementary environments) then you
+can access each component via their name in the ``acs`` module::
 
-  acs.2048.step()
+  acs.environment.2048.step()
   ...
-  acs.cartpole.step()
+  acs.environment.cartpole.step()
 
 
 MVP
@@ -131,35 +138,45 @@ MVP
 * ACS will be able to access a centralized registry of policies and
   environments
 
-  * V0 target: the list will be a yaml file stored in the agentos repository
+  * V0 target: the list will be a yaml file stored in the AgentOS repository
 
 * Each registry entry will be structured as follows::
 
     component_name:
       type: [policy | environment | algorithm]
       description: [component description]
-      source: [link_to_github_repo]
       releases:
-        hash1: version_1_name
-        hash2: version_2_name
+        - name: [version_1_name]
+          hash: [version_1_hash]
+          github_url: [url of version 1 repo]
+          class_name: [fully qualified class name of version 1]
+          requirements_path: [path to version 1 requirements file]
+
+        - name: [version_2_name]
+          hash: [version_2_hash]
+          github_url: [url of version 2 repo]
+          class_name: [fully qualified class name of version 2]
+          requirements_path: [path to version 2 requirements file]
 
   for example::
 
-    env-2048:
+    2048:
       type: environment
       description: "An environment that simulates the 2048 game"
-      source: https://github.com/agentos-project/env-2048/
       releases:
-          0fdea27: 1.0.0
-          33379a8: 1.1.0
+        - name: 1.0.0
+          hash: aeb938f
+          github_url: https://github.com/example-proj/example-repo
+          class_name: main.2048
+          requirements_path: requirements.txt
 
-* Each component will be a (v0: Python) project stored in a github repo that
-  will minimally contain the following files:
+        - name: 1.1.0
+          hash: 3939aa1
+          github_url: https://github.com/example-proj/example-repo
+          class_name: main.2048
+          requirements_path: requirements.txt
 
-  * A ``definition.py`` that will contain the description of that component's
-    ``components.ini`` entry.
-
-  * A ``requirements.txt`` that will contain the project requirements
+* Each component will be a (v0: Python) project stored in a Github repo.
 
 * ACS will have an ``search`` method that will list all components in the
   registry matching the search query.
@@ -168,7 +185,10 @@ MVP
 
   * Find the components location based on its registry entry
 
-  * Download the component from github
+  * Ask if you'd like to install the component as the default in cases where
+    there are multiple installed components of the same type.
+
+  * Download the component from Github
 
   * Merge the component requirements into the existing agent directory's
     requirements (TODO: and also install?)
@@ -176,7 +196,7 @@ MVP
   * Update the agent directory's ``components.ini`` to include the component in
     its default configuration.
 
-* Components can be programatically accessed from the ``acs`` module
+* Components can be programmatically accessed from the ``acs`` module
 
 * Developers have an easy way to register their local custom components with
   ``acs`` so it can be accessed via the ``acs`` module in other parts of their
@@ -219,21 +239,26 @@ accessible programmatically via shortcuts like ``acs.policy`` and
 
 In an agent where you have, for example, two policies installed (e.g.
 ``random`` and ``dqn``) the default (as determined by ``components.ini``) will
-be accessible at ``acs.policy``, but both will be accessible at ``acs.random``
-and ``acs.dqn``.
+be accessible at ``acs.policy``, but both will always be accessible at
+``acs.policy.random`` and ``acs.policy.dqn`` respectively.
 
-**Q:** How does AgentOS locate the main code of the component within the github
+**Q:** How does AgentOS locate the main code of the component within the Github
 repo? Must all components have a well known entry point (e.g., a file called
 main.py)?
 
-**A:** By convention, we'll require a specific set of files in the component's
-github repo.  I'm sure this will evolve, but our first implementation could be
-a ``defintion.py`` file that describes the component entry point and other
-metadata that we'll need for installation.
+**A:** The ACS registry entry for each version of a component contains
+sufficient information to discover the entry point of the component and its
+requirements.
 
-We should also evaluate reusing Python's ``setup.py`` tooling and forcing
-components to be proper packages (with, perhaps, an additional payload about
-entry points and other AgentOS specifics).
+We may eventually:
+
+* Require a component's repo to store additional metadata (perhaps in a
+  top level ``agentos.ini`` file) that ACS tooling can ingest to alleviate
+  concerns about mismatches between registry info and repo info (e.g. a
+  component's version is different in the registry and in the repo).
+
+* Require all components to be proper Python packages so we can reuse Python's
+  ``setup.py`` tooling.
 
 
 **Q:** Will we update the code generated by ``agentos init`` so that it will
@@ -248,8 +273,8 @@ environment).
 **Q:** Do we want to design the API so that using a component from the registry
 looks exactly (or nearly) the same as using a hand-built component.  Basically,
 should we recommend using the same sort of composition for both composing an
-agent from an env, policy and algo built from scratch and composing an agent
-entirely from pre-built components in the registry?
+agent from an environment, policy, and algorithm built from scratch and
+composing an agent entirely from pre-built components in the registry?
 
 **A:**  Yes, I think nudging users toward consistency would be good.  I think
 that means component specifications and APIs that are well documented and
