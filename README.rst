@@ -46,20 +46,20 @@ Recommended Format
 
 Consider adding the following sections and items in your design document:
 
-* Abstract - A brief paragraph summary of the design
+* **Abstract** - A brief paragraph summary of the design
 
-* Rationale - The reason why this feature is important or useful
+* **Rationale** - The reason why this feature is important or useful
 
-* Demo - A "demo" of what the feature will look like after implementation.
+* **Demo** - A "demo" of what the feature will look like after implementation.
   This can contain pseudocode or command line examples.
 
-* Work items - This is a set of items required to accomplish the proposed
+* **Work items** - This is a set of items required to accomplish the proposed
   design.
 
-* FAQ - Frequently asked questions.  Especially useful to address questions
+* **FAQ** - Frequently asked questions.  Especially useful to address questions
   from your reviewer.
 
-* Open Questions - A section to record things that should be investigated or
+* **Open Questions** - A section to record things that should be investigated or
   may change as the design gets implemented.
 
 * Links to any pull requests related to the document so comment history and
