@@ -191,13 +191,20 @@ MVP
   * Ask if you'd like to install the component as the default in cases where
     there are multiple installed components of the same type.
 
-  * Download the component from Github
-
-  * Merge the component requirements into the existing agent directory's
-    requirements (TODO: and also install?)
+  * Clone the component's Github repo
 
   * Update the agent directory's ``components.ini`` to include the component in
-    its default configuration.
+    its default configuration
+
+  * Register the component locally so that it is accessible via the ``acs``
+    module
+
+  * Add a line to the agent directory's requirements file that links to the
+    component's requirements file (e.g. a line of the form
+    `-r component/repo/path/requirements.txt`.).
+
+* ACS will have an ``uninstall`` method that will remove the component from the
+  agent directory (including any links to the component's requirements).
 
 * Components can be programmatically accessed from the ``acs`` module
 
