@@ -222,6 +222,9 @@ Long Term Plans
 * A simple way for component authors to submit components to the registry via
   command-line and web interface.
 
+* A way for agent developers to detect and resolve requirement conflicts
+  between already-installed and soon-to-be-installed components.
+
 
 FAQ
 ===
