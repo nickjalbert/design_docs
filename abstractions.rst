@@ -30,8 +30,8 @@ Rationale
 
 AgentOS aims to define a clean set of abstractions that will be familiar to
 researchers in the reinforcement learning (RL) space while also being
-approachable to technically educated generalists like software engineers.  The
-proposed set of abstractions hews closely to the standard academic
+approachable to a technically educated generalist like a software engineer.
+The proposed set of abstractions hew closely to the standard academic
 presentation of RL while allowing for composition and reuse at the software
 level.
 
@@ -44,8 +44,8 @@ well as discuss implications and future directions.
 Environment
 -----------
 
-An environment will conform to `OpenAI's gym <https://gym.openai.com/>` API.  Core methods
-are:
+An environment will conform to `OpenAI's gym <https://gym.openai.com/>`_ API.
+Core methods are:
 
 * ``step(action) -> (observation, done, reward, info)``: This takes one action
   within the environment and transitions to a new state.
@@ -56,7 +56,6 @@ Here is an example environment that represents a 1-dimensional corridor that
 the agent must learn to walk down::
 
     import gym
-
 
     class Corridor(gym.Env):
 
@@ -89,13 +88,13 @@ be backed by some sort of stateful storage (e.g. a table or a serialized
 neural net).  Eventually, AgentOS will provide ability to easily share
 policies (including their state) between agents.
 
-A Policy must provide the following two methods:
+A policy must provide the following two methods:
 
 * ``decide(obs) -> action``: Takes the agent's current observation and returns
   the next action the agent should take.
 
 * ``reset() -> None``: Dumps any stateful part of the policy so that the agent
-  is can restart learning from scratch.
+  can restart learning from scratch.
 
 
 An example policy class might look like the following::
@@ -118,7 +117,7 @@ that the agent can learn how to increase reward in subsequent runs through the
 environment.  Trainers are often closely coupled to the policies that they
 modify.
 
-Trainers provide the following method: [#train-method]_
+Trainers provide the following method: [#train_method]_
 
 * ``train(policy, **kwargs) -> policy``: Mutates the policy to reflect the
   agent's learning.
@@ -198,23 +197,26 @@ look like the following::
       [Agent]
       class = main.MyAgent
 
-      [Policy] # self.policy
+      [Policy]
       class = policy.DeepQNetwork
       architecture = [10,100,100]
       storage = ./policy/
 
-      [Environment] # self.environment
+      [Environment]
       class = environment.Corridor
 
-      [Trainer] # self.trainer
+      [Trainer]
       class = trainer.ReplayBufferSGD
       buffer_size = 10000
       batch_size = 100
 
-Note that the ``agent.ini`` contains both the location of primary components
-of the agent as well as various configuration variables and hyper-parameters.
-This file will be managed by the AgentOS Component System (ACS) to allow for
-easy composition and reuse of AgentOS components.
+Note that the ``agent.ini`` contains both the location of the primary
+components of the agent as well as various configuration variables and
+hyperparameters.  This file will be managed by the AgentOS Component System
+(ACS) to allow for easy composition and reuse of AgentOS components.
+
+The policy, environment, and trainer will be accessible within the agent class
+as ``self.policy``, ``self.environment``, and ``self.trainer`` respectively.
 
 
 Demo
@@ -226,11 +228,11 @@ A common use case will be using the command-line to train and run an agent as
 follows::
 
 
-    agentos train /path/to/agent.ini 1000 # Train the agent's policy over 1000 rollouts
-    agentos run /path/to/agent.ini  # Run our agent to measure performance
-    agentos train /path/to/agent.ini  1000 # Train our agent on another 1000 rollouts
-    agentos run /path/to/agent.ini   # Measure performance again
-    agentos reset /path/to/agent.ini  # Resets the agent's policy; forget all learning
+    agentos train agent.ini 1000   # Train the agent's policy over 1000 rollouts
+    agentos run agent.ini          # Run our agent to measure performance
+    agentos train agent.ini 1000   # Train our agent on another 1000 rollouts
+    agentos run agent.ini          # Measure performance again
+    agentos reset agent.ini        # Resets the agent's policy; forget all learning
 
 
 The AgentOS CLI provides several ways to run an agent.  You can run using the
@@ -263,9 +265,6 @@ Or by specifying each component as a keyword argument::
         trainer=MyTrainer
     )
 
-See Also
-========
-
 Revision History
 ================
 
@@ -281,7 +280,7 @@ Revision History
 Footnotes
 =========
 
-.. [#train-method]: This method signature is probably over-simplified.  A
+.. [#train_method] : This method signature is probably over-simplified.  A
 trainer might need access to the environment (or environment class), the
 policy itself, recent observations, etc
 
