@@ -281,18 +281,6 @@ Footnotes
 =========
 
 .. [#train_method] : This method signature is probably over-simplified.  A
-trainer might need access to the environment (or environment class), the
-policy itself, recent observations, etc
-
-
-
-
-
-
-
-
-
-
-
-
-
+                     trainer might need access to the environment (or
+                     environment class), the policy itself, recent
+                     observations, etc
