@@ -274,7 +274,7 @@ Revision History
 
 * Document version history:
 
-  * `v1 <https://github.com/agentos-project/design_docs/blob/36791f4ef1cf408c19cf13042bb7cc6b72cb6030/registry.rst>`_
+  * `v1 <https://github.com/agentos-project/design_docs/blob/f94af06f8fc66f867ca07bf7273d39d185489251/abstractions.rst>`_
 
 
 Footnotes
