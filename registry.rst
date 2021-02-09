@@ -2,9 +2,9 @@
 Registry for Environments, Policies, and Agents
 ===============================================
 
-See this `pull request
-<https://github.com/agentos-project/design_docs/pull/1>`_ for additional
-discussion and revision history.
+Current Version: v5
+
+See `Revision History`_ for additional discussion.
 
 Abstract
 ========
@@ -191,13 +191,20 @@ MVP
   * Ask if you'd like to install the component as the default in cases where
     there are multiple installed components of the same type.
 
-  * Download the component from Github
-
-  * Merge the component requirements into the existing agent directory's
-    requirements (TODO: and also install?)
+  * Clone the component's Github repo
 
   * Update the agent directory's ``components.ini`` to include the component in
-    its default configuration.
+    its default configuration
+
+  * Register the component locally so that it is accessible via the ``acs``
+    module
+
+  * Add a line to the agent directory's requirements file that links to the
+    component's requirements file (e.g. a line of the form
+    `-r component/repo/path/requirements.txt`.).
+
+* ACS will have an ``uninstall`` method that will remove the component from the
+  agent directory (including any links to the component's requirements).
 
 * Components can be programmatically accessed from the ``acs`` module
 
@@ -214,6 +221,9 @@ Long Term Plans
 
 * A simple way for component authors to submit components to the registry via
   command-line and web interface.
+
+* A way for agent developers to detect and resolve requirement conflicts
+  between already-installed and soon-to-be-installed components.
 
 
 FAQ
@@ -325,26 +335,34 @@ TODO and open questions
 
 * How to handle component dependencies (Both package and component-level)?
 
-    * [StackOverflow on conditional requirements](https://stackoverflow.com/a/29222444)
-
-    * How to fail gracefully if there are incompatible requirements
-
-    * Perhaps use separate processes to isolate run environments
-
-    * Can we just use the Python package system and pip directly?
+  * `StackOverflow on conditional requirements <https://stackoverflow.com/a/29222444>`_
+  * How to fail gracefully if there are incompatible requirements
+  * Perhaps use separate processes to isolate run environments
+  * Can we just use the Python package system and pip directly?
 
 * What are the key components that we want to expose in our registry?
   Candidates: Agents, Policies, Environments, Learning Strategies, Memory
   Stores, Models.
 
-See Also
-========
+Revision History
+================
 
-* `design_docs Pull Request 1: AgentOS registry <https://github.com/agentos-project/design_docs/pull/1>`_
+* Pull requests:
+
+  * `design_docs #1: AgentOS registry <https://github.com/agentos-project/design_docs/pull/1>`_
+  * `design_docs #2: Avoid merging requirements on component install <https://github.com/agentos-project/design_docs/pull/2>`_
+  
 * Document version history:
-    * `v1 <https://github.com/agentos-project/design_docs/blob/36791f4ef1cf408c19cf13042bb7cc6b72cb6030/registry.rst>`_
-    * `v2 <https://github.com/agentos-project/design_docs/blob/020a70a5e538b58e5e0ff269f44a7f206a7b132e/registry.rst>`_
-    * `v3 <https://github.com/agentos-project/design_docs/blob/e32ff7a96eab3486a3c8bb65c1ca1df280e20434/registry.rst>`_
+
+  * `v1 <https://github.com/agentos-project/design_docs/blob/36791f4ef1cf408c19cf13042bb7cc6b72cb6030/registry.rst>`_
+  * `v2 <https://github.com/agentos-project/design_docs/blob/020a70a5e538b58e5e0ff269f44a7f206a7b132e/registry.rst>`_
+  * `v3 <https://github.com/agentos-project/design_docs/blob/e32ff7a96eab3486a3c8bb65c1ca1df280e20434/registry.rst>`_
+  * `v4 <https://github.com/agentos-project/design_docs/blob/507bfb96a1b40bef8338603a3e661681d0d622c7/registry.rst>`_
+
+
+Further Reading
+===============
+
 * `AgentOS Issue 68: Registery for Envs, Policies, and Agents <https://github.com/agentos-project/agentos/issues/68>`_
 * `PEP 301 -- Package Index and Metadata for Distutils <https://www.python.org/dev/peps/pep-0301/>`_
 * `PEP 243 -- Module Repository Upload Mechanism <https://www.python.org/dev/peps/pep-0243/>`_
