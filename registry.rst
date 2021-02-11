@@ -2,14 +2,14 @@
 Registry for Environments, Policies, and Agents
 ===============================================
 
-Current Version: v5
+Current Version: v6
 
 See `Revision History`_ for additional discussion.
 
 Abstract
 ========
 
-This document proposes the **AgentOS component system (ACS)**.  ACS allows for
+This document proposes the **AgentOS component registry (ACR)**.  ACR allows for
 easy composition and reuse of key top-level AgentOS components (e.g.
 environments and policies) much like ``pip`` does for Python and ``APT`` does
 for Debian Linux.
@@ -24,10 +24,10 @@ agents with different behaviors and learning strategies; as long as each
 component respects its interface, the specifics of its implementation should
 not matter for composition.
 
-The ACS enables this vision by:
+The ACR enables this vision by:
 
 * Maintaining a centralized registry of agent components including policies,
-  learning strategies, and environments.
+  trainers, and environments.
 
 * Providing a versioning system for these components
 
@@ -39,7 +39,7 @@ The ACS enables this vision by:
 Demo
 ====
 
-This section illustrates the usage of ACS by way of example commands and code.
+This section illustrates the usage of ACR by way of example commands and code.
 
 Interaction with the registry
 -----------------------------
@@ -57,7 +57,7 @@ Then create a new agent::
 This generates a minimal agent in your ``my_agent`` directory.  The minimal
 agent is not particularly interesting though, so let's flesh it out.
 
-Let's take a look at the environments available to our agent in the ACS::
+Let's take a look at the environments available to our agent in the ACR::
 
   agentos search environment
 
@@ -68,85 +68,109 @@ the in-browser game `2048 <https://en.wikipedia.org/wiki/2048_(video_game)>`_::
   agentos install environment 2048
 
 The above command not only installs the 2048 environment into your agent
-directory, but it also updates our agent directory's ``components.ini`` file to
+directory, but it also updates our agent directory's ``agent.ini`` file to
 record the specifics of the components we've installed.
 
-Our agent will now run against the 2048 game environment. However, our agent
-still lacks the ability to learn.  Let's fix that by installing a `policy
-component that learns via the SARSA algorithm
+Our agent will now run against the 2048 game environment.  Now, let's install a
+policy that our agent can use to determine which action to take when given a
+set of observations::
+
+    agentos install policy q_table
+
+We'll use a Q table to track the quality of the actions available to our agent
+in a given state.
+
+While we've installed a policy, our agent still lacks the ability to learn.
+Let's fix that by installing a `trainer component that learns via the SARSA
+algorithm
 <https://en.wikipedia.org/wiki/State%E2%80%93action%E2%80%93reward%E2%80%93state%E2%80%93action>`_
 into our agent::
 
-  agentos install policy sarsa
+  agentos install trainer sarsa
 
-After the install completes, our ``components.ini`` will again be updated to
-record the fact that our agent will be using SARSA to learn how to play 2048.
+Trainer components specify how to modify a policy as an agent gains experience.
+After the install completes, our ``agent.ini`` will again be updated to record
+the fact that our agent will be using SARSA to learn how to play 2048.
 
-We can now run the agent as follows::
+We can now train our agent so that its policy becomes better at playing 2048 as
+follows::
 
-  agentos run
+  agentos train agent.ini 1000
+
+And we can run our agent as follows::
+
+  agentos run agent.ini
 
 As you let your agent run, you'll get periodic updates on its performance
 improvement as it gains more experience playing 2048 and learns via the SARSA
 algorithm.
 
+Some agents will only learn when called via ``agentos train`` and will have
+their policy frozen during ``agentos run``.  Other agents will learn whenever
+they are run via either method.  This is design decision is up to the agent
+developer and the algorithm they are implementing.
+
 Now suppose we become convinced that a `Deep Q-Learning network
 <https://en.wikipedia.org/wiki/Q-learning>`_ would be more amenable to learning
-2048.  Switching our learning strategy and policy is as easy as running::
+2048.  Switching our policy and trainer is as easy as running::
 
   agentos install policy dqn
+  agentos install trainer dqn_sgd
 
-Because you are installing a second policy, ACS will ask you which policy you'd
-like to make default.  All installed components are always programmatically
-accessible, but ACS provides shortcuts for accessing default components.
+Because you are installing a second policy and second trainer, ACR will ask you
+which you'd like to make default.  All installed components are always
+programmatically accessible, but ACR initializes the members of the ``Agent``
+class with the default components.
 
-Go ahead and select ``dqn`` as the default policy.  Again, ``components.ini``
-will be updated to reflect that we are now using a DQN-based learning algorithm
-instead of a SARSA-based learning algorithm.
+Go ahead and select ``dqn`` as the default policy and ``dqn_sgd`` as your
+default trainer.  Again, ``agent.ini`` will be updated to reflect that we are
+now using a DQN-based learning algorithm instead of a SARSA-based learning
+algorithm.
 
-Now when you run your agent again (``agentos run``) your agent will be using
-Q-learning with a deep Q network to learn 2048.
+Now when you train your agent again (``agentos train``) your agent will be
+using Q-learning with a deep Q network to learn 2048.
 
 
 Using components within code
 ---------------------------
 
-Let's dig into our minimal agent to see how we access our components programmatically::
+Let's dig into our minimal agent to see how we access our components
+programmatically::
 
     from agentos import Agent
-    from agentos import acs
 
     class SimpleAgent(Agent):
+        def train(self):
+            self.trainer.train(self.policy)
+
         def advance(self):
-            acs.policy.train(acs.env)
-            done = False
-            obs = acs.environment.reset()
-            next_action = acs.policy.choose(obs)
-            obs, reward, done, _ = acs.environment.step(next_action)
-            return done
+            next_action = self.policy.decide(self.obs)
+            self.obs, done, reward, info  = self.environment.step(next_action)
 
-The ``acs`` module automatically loads default components under shortcuts such
-as ``acs.policy`` and ``acs.environment``.  If you have more than one component
-installed for a particular role (e.g. two complementary environments) then you
-can access each component via their name in the ``acs`` module::
+The ``acr`` module automatically loads default components into class members of
+the agent such as ``self.policy`` and ``self.environment``.  If you have more
+than one component installed for a particular role (e.g. two complementary
+environments) then you can access each component via their name in the ``acr``
+module::
 
-  acs.environment.2048.step()
+  import acr
+  acr.environment.2048.step()
   ...
-  acs.environment.cartpole.step()
+  acr.environment.cartpole.step()
 
 
 MVP
 ===
 
-* ACS will be able to access a centralized registry of policies and
-  environments
+* ACR will be able to access a centralized registry of policies, environments,
+  and trainers.
 
   * V0 target: the list will be a yaml file stored in the AgentOS repository
 
 * Each registry entry will be structured as follows::
 
     component_name:
-      type: [policy | environment | algorithm]
+      type: [policy | environment | trainer]
       description: [component description]
       releases:
         - name: [version_1_name]
@@ -181,10 +205,10 @@ MVP
 
 * Each component will be a (v0: Python) project stored in a Github repo.
 
-* ACS will have an ``search`` method that will list all components in the
+* ACR will have an ``search`` method that will list all components in the
   registry matching the search query.
 
-* ACS will have an ``install`` method that will:
+* ACR will have an ``install`` method that will:
 
   * Find the components location based on its registry entry
 
@@ -193,26 +217,26 @@ MVP
 
   * Clone the component's Github repo
 
-  * Update the agent directory's ``components.ini`` to include the component in
+  * Update the agent directory's ``agent.ini`` to include the component in
     its default configuration
 
-  * Register the component locally so that it is accessible via the ``acs``
+  * Register the component locally so that it is accessible via the ``acr``
     module
 
   * Add a line to the agent directory's requirements file that links to the
     component's requirements file (e.g. a line of the form
     `-r component/repo/path/requirements.txt`.).
 
-* ACS will have an ``uninstall`` method that will remove the component from the
+* ACR will have an ``uninstall`` method that will remove the component from the
   agent directory (including any links to the component's requirements).
 
-* Components can be programmatically accessed from the ``acs`` module
+* Components can be programmatically accessed from the ``acr`` module
 
 * Developers have an easy way to register their local custom components with
-  ``acs`` so it can be accessed via the ``acs`` module in other parts of their
+  ``acr`` so it can be accessed via the ``acr`` module in other parts of their
   agent.
 
-* The minimal agent (``agentos init``) will be ACS aware and incorporate
+* The minimal agent (``agentos init``) will be ACR aware and incorporate
   basic components with minimal required edits
 
 
@@ -233,40 +257,40 @@ FAQ
 tuned based on the particulars of the environment and the agent.  How do I do
 this?
 
-**A:** Each component maintains exposes a configuration in its ``components.ini``
+**A:** Each component maintains exposes a configuration in its ``agent.ini``
 entry. This allows for both manual tweaking of hyperparameters as well as
 programmatic exploration and tuning.
 
-**Q:** How can I reuse a model from a previous run?
+**Q:** How can I reuse a policy from a previous run?
 
-**A:** Models themselves are exposed as top-level components.  ``agentos run``
-has tooling that allows you to dynamically specify when and how to reuse
-existing models.
+**A:** Policies are top-level components and are often backed by some sort of
+state.  ``agentos run`` has tooling that allows you to dynamically specify when
+and how to reuse existing models.
 
 **Q:** Can only 1 component of each type be installed in an agent at a time?
 
-**A:** We should allow multiple components of a single type.  Perhaps
-``components.ini`` defines the default for each type and that default is
-accessible programmatically via shortcuts like ``acs.policy`` and
-``acs.environment``.
+**A:** ACR allows multiple components of a single type. The ``agent.ini``
+configuration file defines the default for each component type and that default
+is accessible programmatically via shortcuts within the agent like
+``self.policy`` and ``self.environment``.
 
 In an agent where you have, for example, two policies installed (e.g.
-``random`` and ``dqn``) the default (as determined by ``components.ini``) will
-be accessible at ``acs.policy``, but both will always be accessible at
-``acs.policy.random`` and ``acs.policy.dqn`` respectively.
+``random`` and ``dqn``) the default (as determined by ``agent.ini``) will be
+accessible within the agent as ``self.policy``, but both will always be
+accessible at ``acr.policy.random`` and ``acr.policy.dqn`` respectively.
 
 **Q:** How does AgentOS locate the main code of the component within the Github
 repo? Must all components have a well known entry point (e.g., a file called
 main.py)?
 
-**A:** The ACS registry entry for each version of a component contains
+**A:** The ACR registry entry for each version of a component contains
 sufficient information to discover the entry point of the component and its
 requirements.
 
 We may eventually:
 
 * Require a component's repo to store additional metadata (perhaps in a
-  top level ``agentos.ini`` file) that ACS tooling can ingest to alleviate
+  top level ``agent.ini`` file) that ACR tooling can ingest to alleviate
   concerns about mismatches between registry info and repo info (e.g. a
   component's version is different in the registry and in the repo).
 
@@ -275,13 +299,12 @@ We may eventually:
 
 
 **Q:** Will we update the code generated by ``agentos init`` so that it will
-use the ACS module?
+use the ACR module?
 
-**A:** Yes, if we decide that ACS is a worthwhile pursuit, then I think we
-should make sure it's on-by-default for all agents.  I imagine we could default
-to some very basic components for minimal agents that are included
+**A:** Yes, the default agent uses some very basic components that are included
 out-of-the-box in AgentOS (e.g. random action policy, a basic corridor
-environment).
+environment).  The ``agentos init`` command creates the ``agent.ini`` file that
+specifies these defaults.
 
 **Q:** Do we want to design the API so that using a component from the registry
 looks exactly (or nearly) the same as using a hand-built component.  Basically,
@@ -301,14 +324,14 @@ your component programmed to the spec.
 
 Diving down closer to the code, I think we need to provide an easy way to, for
 example, register your custom environment so that you can access it via
-``acs.environment`` in the rest of your code, and encourage exposing and
-interacting with your custom components in this way.
+``self.environment`` within your agent, and encourage exposing and interacting
+with your custom components in this way.
 
 
 **Q:** How does this relate to OpenAI's ``gym.envs.registry``, if at all?
 
-**A:** The idea of having an ``acs`` module that you can import in your Python
-code is inspired by the ``gym.envs.registry``.  The ``acs`` module dynamically
+**A:** The idea of having an ``acr`` module that you can import in your Python
+code is inspired by the ``gym.envs.registry``.  The ``acr`` module dynamically
 loads in the available components much like gym's registry.
 
 One rationale I found for OpenAI's environment registry is
@@ -341,8 +364,7 @@ TODO and open questions
   * Can we just use the Python package system and pip directly?
 
 * What are the key components that we want to expose in our registry?
-  Candidates: Agents, Policies, Environments, Learning Strategies, Memory
-  Stores, Models.
+  Candidates: Agents, Policies, Environments, Trainers.
 
 Revision History
 ================
@@ -351,13 +373,23 @@ Revision History
 
   * `design_docs #1: AgentOS registry <https://github.com/agentos-project/design_docs/pull/1>`_
   * `design_docs #2: Avoid merging requirements on component install <https://github.com/agentos-project/design_docs/pull/2>`_
-  
+
 * Document version history:
 
   * `v1 <https://github.com/agentos-project/design_docs/blob/36791f4ef1cf408c19cf13042bb7cc6b72cb6030/registry.rst>`_
   * `v2 <https://github.com/agentos-project/design_docs/blob/020a70a5e538b58e5e0ff269f44a7f206a7b132e/registry.rst>`_
   * `v3 <https://github.com/agentos-project/design_docs/blob/e32ff7a96eab3486a3c8bb65c1ca1df280e20434/registry.rst>`_
   * `v4 <https://github.com/agentos-project/design_docs/blob/507bfb96a1b40bef8338603a3e661681d0d622c7/registry.rst>`_
+  * `v5 <https://github.com/agentos-project/design_docs/blob/886f5a0eb960c398cc57d7cd5ec97956c528cca4/registry.rst>`_
+  * `v6 <https://github.com/agentos-project/design_docs/blob/TODO/registry.rst>`_
+
+    * Rename AgentOS Component System (ACS) to AgentOS Component Registry (ACR)
+
+    * Rename ``components.ini`` to ``agent.ini``
+
+    * Update demo to reflect core abstractions and new CLI
+
+    * Update FAQ to reflect recent discussions on core abstractions
 
 
 Further Reading
