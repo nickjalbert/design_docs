@@ -292,6 +292,14 @@ Revision History
 
   * `v1 <https://github.com/agentos-project/design_docs/blob/f94af06f8fc66f867ca07bf7273d39d185489251/abstractions.rst>`_
 
+  * `v2 <https://github.com/agentos-project/design_docs/blob/8ea7544c9edc47c1dedd992ba95e9dafeed33b36/abstractions.rst>`_
+
+    * Added code for Agent base class
+
+    * Fixed ``policy()`` function signature to return ``None``
+
+    * Minor rework of description of core abstractions
+
 
 Footnotes
 =========
