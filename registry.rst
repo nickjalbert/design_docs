@@ -369,6 +369,10 @@ TODO and open questions
 Revision History
 ================
 
+* Discussion Thread:
+
+  * `AgentOS Component Registry <https://github.com/agentos-project/design_docs/discussions/7>`_
+
 * Pull requests:
 
   * `design_docs #1: AgentOS registry <https://github.com/agentos-project/design_docs/pull/1>`_
