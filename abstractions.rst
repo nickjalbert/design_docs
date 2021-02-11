@@ -2,7 +2,7 @@
 AgentOS Core Abstractions
 =========================
 
-Current Version: v1
+Current Version: v2
 
 See `Revision History`_ for additional discussion.
 
@@ -13,8 +13,9 @@ Abstract
 This document proposes the core abstractions of the AgentOS system.  These
 abstractions are:
 
-* **Environment** - A representation of the Markov decision process (MDP) in
-  which the agent operates.
+* **Environment** - A representation of the world in which the agent operates.
+  An agent takes actions within an environment, and these actions can
+  potentially affect the environment's state (and thus the agent's observation).
 
 * **Policy** - Encapsulates the agent's decision making process.  The policy
   chooses an action given a set of observations.
@@ -22,8 +23,9 @@ abstractions are:
 * **Trainer** - Encapsulates how a policy changes over time as an agent gains
   experience.
 
-* **Agent** - The glue that binds the policy and trainer.  The agent is what
-  performs actions within the environment with an aim to maximize reward.
+* **Agent** - The agent contains both a policy and trainer.  The agent is what
+  performs actions within the environment so that it can learn how to maximize
+  reward.
 
 Rationale
 =========
@@ -119,8 +121,8 @@ modify.
 
 Trainers provide the following method: [#train_method]_
 
-* ``train(policy, **kwargs) -> policy``: Mutates the policy to reflect the
-  agent's learning.
+* ``train(policy, **kwargs) -> None``: Mutates the policy to reflect the
+  agent's learning. [#train_mutate]_
 
 An example trainer class for the Deep Q network above might look like the
 following::
@@ -147,6 +149,20 @@ following methods:
 
 * ``advance() -> None``: This is called to cause the agent to act within its
   environment based on its current policy.
+
+The base agent class is defined as follows::
+
+    class Agent:
+        def __init__(self, policy, trainer, environment):
+            self.policy = policy
+            self.trainer = trainer
+            self.environment = environment
+
+        def train():
+            pass
+
+        def advance():
+            pass
 
 An example agent class might look like the following::
 
@@ -284,3 +300,8 @@ Footnotes
                    trainer might need access to the environment (or
                    environment class), the policy itself, recent
                    observations, etc
+
+.. [#train_mutate] It feels cleaner to make ``train()`` side-effect free
+                   (i.e. ``train(policy, **kwargs) -> policy``) but
+                   copying policies whenever training occurs seems like
+                   it might introduce performance issues.  TBD.
