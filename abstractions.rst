@@ -284,6 +284,10 @@ Or by specifying each component as a keyword argument::
 Revision History
 ================
 
+* Discussion Thread:
+
+  * `Design of Core Abstractions <https://github.com/agentos-project/design_docs/discussions/5>`_
+
 * Pull requests:
 
   * `design_docs #3: AgentOS Core Abstractions <https://github.com/agentos-project/design_docs/pull/3>`_
