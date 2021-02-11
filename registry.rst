@@ -381,7 +381,7 @@ Revision History
   * `v3 <https://github.com/agentos-project/design_docs/blob/e32ff7a96eab3486a3c8bb65c1ca1df280e20434/registry.rst>`_
   * `v4 <https://github.com/agentos-project/design_docs/blob/507bfb96a1b40bef8338603a3e661681d0d622c7/registry.rst>`_
   * `v5 <https://github.com/agentos-project/design_docs/blob/886f5a0eb960c398cc57d7cd5ec97956c528cca4/registry.rst>`_
-  * `v6 <https://github.com/agentos-project/design_docs/blob/TODO/registry.rst>`_
+  * `v6 <https://github.com/agentos-project/design_docs/blob/2ec8b7f231330119d153a24725537a7c4e71084d/registry.rst>`_
 
     * Rename AgentOS Component System (ACS) to AgentOS Component Registry (ACR)
 
