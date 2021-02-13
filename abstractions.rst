@@ -2,7 +2,7 @@
 AgentOS Core Abstractions
 =========================
 
-Current Version: v2
+Current Version: v3
 
 See `Revision History`_ for additional discussion.
 
@@ -15,23 +15,21 @@ abstractions are:
 
 * **Environment** - A representation of the world in which the agent operates.
   An agent takes actions within an environment, and these actions can
-  potentially affect the environment's state (and thus the agent's observation).
+  potentially affect the environment's state (and thus the agent's
+  observation).
 
 * **Policy** - Encapsulates the agent's decision making process.  The policy
-  chooses an action given a set of observations.
+  chooses an action given a set of observations.  It also provides facilities
+  for improving itself as the agent gains experience.
 
-* **Trainer** - Encapsulates how a policy changes over time as an agent gains
-  experience.
-
-* **Agent** - The agent contains both a policy and trainer.  The agent is what
-  performs actions within the environment so that it can learn how to maximize
-  reward.
+* **Agent** - The agent contains a policy.  It performs actions based on its
+  policy within the environment so that it can learn how to maximize reward.
 
 Rationale
 =========
 
-AgentOS aims to define a clean set of abstractions that will be familiar to
-researchers in the reinforcement learning (RL) space while also being
+AgentOS aims to define a clean set of abstractions that will be familiar to a
+researcher in the reinforcement learning (RL) space while also being
 approachable to a technically educated generalist like a software engineer.
 The proposed set of abstractions hew closely to the standard academic
 presentation of RL while allowing for composition and reuse at the software
@@ -90,13 +88,16 @@ be backed by some sort of stateful storage (e.g. a table or a serialized
 neural net).  Eventually, AgentOS will provide ability to easily share
 policies (including their state) between agents.
 
-A policy must provide the following two methods:
+A policy must provide the following three methods:
 
-* ``decide(obs) -> action``: Takes the agent's current observation and returns
-  the next action the agent should take.
+* ``decide(self, obs) -> action``: Takes the agent's current observation and
+  returns the next action the agent should take.
 
-* ``reset() -> None``: Dumps any stateful part of the policy so that the agent
-  can restart learning from scratch.
+* ``improve(self, **kwargs) -> None``: Updates the agent's policy based upon
+  experience (e.g. training the DQN backing the policy via gradient descent).
+
+* ``reset(self) -> None``: Dumps any stateful part of the policy so that the
+  agent can restart learning from scratch.
 
 
 An example policy class might look like the following::
@@ -108,42 +109,21 @@ An example policy class might look like the following::
             action_probabilites = self.nn(obs)
             return random.weighted_choose(action_probabilities)
 
-        def reset():
-            self.nn = create_new_neural_net()
-
-Trainer
--------
-
-A trainer describes how to incorporate experiences into the agent's policy so
-that the agent can learn how to increase reward in subsequent runs through the
-environment.  Trainers are often closely coupled to the policies that they
-modify.
-
-Trainers provide the following method: [#train_method]_
-
-* ``train(policy, **kwargs) -> None``: Mutates the policy to reflect the
-  agent's learning. [#train_mutate]_
-
-An example trainer class for the Deep Q network above might look like the
-following::
-
-    import agentos
-
-    class ReplayBufferSGD(agentos.Trainer):
-        def train(policy, environment_class):
-            rollouts = agentos.do_rollouts(policy, environment_class)
+        def improve(self, environment_class):
+            rollouts = agentos.do_rollouts(self, environment_class)
             advantaged_rollouts = calculate_advantage(rollouts)
-            policy.nn.train(advantaged_rollouts)
+            self.nn.train(advantaged_rollouts)
 
+        def reset(self):
+            self.nn = create_new_neural_net()
 
 Agent
 -----
 
-An agent is the "glue" that binds the trainer and the policy as well as the
-entity that performs actions within the environment.  An agent provides the
-following methods:
+An agent is the entity that performs actions within the environment based on
+its policy.  An agent provides the following methods:
 
-* ``train() -> None``: This is called to improve the agent's policy via
+* ``learn() -> None``: This is called to improve the agent's policy via
   practice within the environment.
 
 
@@ -158,31 +138,31 @@ The base agent class is defined as follows::
             self.trainer = trainer
             self.environment = environment
 
-        def train():
+        def learn():
             pass
 
         def advance():
-            pass
+            raise NotImplementedError
 
 An example agent class might look like the following::
 
     import agentos
 
     class MyAgent(agentos.Agent):
-        def train(self):
-            self.trainer.train(self.policy)
+        def learn(self):
+            self.policy.improve()
 
         def advance(self):
             next_action = self.policy.decide(self.obs)
             self.obs, done, reward, info  = self.environment.step(next_action)
 
 
-Note that ``train()`` will be a no-op for some agents as the their learning
+Note that ``learn()`` will be a no-op for some agents as the their learning
 might take place while the agent is advancing through its environment.  To
 this end, we propose two common subclasses of the agent:
 
 * ``OnlineAgent``: This agent learns while it advances through its
-  environment.  Thus ``train()`` will often be a no-op as the policy will be
+  environment.  Thus ``learn()`` will often be a no-op as the policy will be
   trained each time ``advance()`` gets called.
 
 * ``BatchAgent``: This agent learns in an "offline" manner.  It will either
@@ -200,7 +180,6 @@ something like the following::
 
     my_agent/
       - main.py
-      - trainer.py
       - environment.py
       - policy.py
       - policy/
@@ -216,23 +195,23 @@ look like the following::
       [Policy]
       class = policy.DeepQNetwork
       architecture = [10,100,100]
+      buffer_size = 10000
+      batch_size = 100
       storage = ./policy/
 
       [Environment]
       class = environment.Corridor
 
-      [Trainer]
-      class = trainer.ReplayBufferSGD
-      buffer_size = 10000
-      batch_size = 100
 
 Note that the ``agent.ini`` contains both the location of the primary
 components of the agent as well as various configuration variables and
-hyperparameters.  This file will be managed by the AgentOS Component System
-(ACS) to allow for easy composition and reuse of AgentOS components.
+hyperparameters.  This file will be managed by the AgentOS Component Registry
+(ACR) to allow for easy composition and reuse of AgentOS components.  It is
+also human readable and editable, if the developer wants to directly modify
+it.
 
-The policy, environment, and trainer will be accessible within the agent class
-as ``self.policy``, ``self.environment``, and ``self.trainer`` respectively.
+The policy and environment will be accessible within the agent class as
+``self.policy`` and ``self.environment`` respectively.
 
 
 Demo
@@ -264,7 +243,7 @@ Alternatively, you can specify the ``agent.ini`` file to use as follows::
 Finally, you can specify all the components of an agent individually as
 follows::
 
-    agentos run -e myenv.Env -p mypolicy.Policy -a main.MyAgent -t trainer.ReplayBufferSGD
+    agentos run -e myenv.Env -p mypolicy.Policy -a main.MyAgent
 
 
 Additionally, AgentOS provides methods for running agents programmatically
@@ -278,8 +257,18 @@ Or by specifying each component as a keyword argument::
         agent=MyAgent,
         environment=MyEnv,
         policy=MyPolicy,
-        trainer=MyTrainer
     )
+
+Long Term Plans
+===============
+
+* Mark core classes and methods as abstract as appropriate.  See `Abstract
+  Base Classes (ABCs) <https://docs.python.org/3/library/abc.html>`_ and `the
+  ABC PEP <https://www.python.org/dev/peps/pep-3119/>`_.
+
+* Separate out a Reward abstraction from the Environment abstraction.
+
+
 
 Revision History
 ================
@@ -304,16 +293,14 @@ Revision History
 
     * Minor rework of description of core abstractions
 
+  * `v3 <https://github.com/agentos-project/design_docs/blob/TODO/abstractions.rst>`_
 
-Footnotes
-=========
+    * Drop Trainer abstraction in favor of `Policy.improve()`
 
-.. [#train_method] This method signature is probably over-simplified.  A
-                   trainer might need access to the environment (or
-                   environment class), the policy itself, recent
-                   observations, etc
+    * Rename `agent.train` to `agent.learn`
 
-.. [#train_mutate] It feels cleaner to make ``train()`` side-effect free
-                   (i.e. ``train(policy, **kwargs) -> policy``) but
-                   copying policies whenever training occurs seems like
-                   it might introduce performance issues.  TBD.
+    * Default implementation of `Agent.learn` is no-op
+
+    * Default implementation of `Agent.advance` is NotImplementedError
+
+    * Added long-term plans section
