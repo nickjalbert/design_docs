@@ -293,7 +293,7 @@ Revision History
 
     * Minor rework of description of core abstractions
 
-  * `v3 <https://github.com/agentos-project/design_docs/blob/TODO/abstractions.rst>`_
+  * `v3 <https://github.com/agentos-project/design_docs/blob/640f71509c7551b335e6312822392069b6e8c8e9/abstractions.rst>`_
 
     * Drop Trainer abstraction in favor of `Policy.improve()`
 
