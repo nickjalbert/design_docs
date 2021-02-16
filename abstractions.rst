@@ -35,6 +35,26 @@ The proposed set of abstractions hew closely to the standard academic
 presentation of RL while allowing for composition and reuse at the software
 level.
 
+
+User Stories
+============
+
+RL newbie trying to learn
+-------------------------
+As a software programmer and newbie to RL/AI, I want learn RL by looking at documentation and code examples and I want to start making my own agents by composing existing algorithms, environments, etc. I am interested in using both the AgentOS CLI and the Python API as I learn.
+
+
+Agent developer using python
+----------------------------
+As an agent developer, I want to write my own agents, policies, environments, and other components from scratch in python and manipulate them entirely via the command line.
+
+
+Agent user running somebody elses agent
+---------------------------------------
+As a researcher on a conference program committee reviewing RL papers, I want to clone my own copy of an agent from a paper, run it, and inspect its parts. Ideally I would like it to conform to known APIs so that I can a priori have some idea of what different parts do.
+
+
+
 Core Abstractions
 =================
 
