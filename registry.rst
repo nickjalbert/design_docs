@@ -413,10 +413,11 @@ Revision History
 
   * `AgentOS Component Registry <https://github.com/agentos-project/design_docs/discussions/7>`_
 
-* Pull requests:
+* Important pull requests:
 
   * `design_docs #1: AgentOS registry <https://github.com/agentos-project/design_docs/pull/1>`_
   * `design_docs #2: Avoid merging requirements on component install <https://github.com/agentos-project/design_docs/pull/2>`_
+  * `design_docs #10: Design doc updates: Abstractions and Registry <https://github.com/agentos-project/design_docs/pull/10>`_
 
 * Document version history:
 
