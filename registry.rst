@@ -2,17 +2,29 @@
 Registry for Environments, Policies, and Agents
 ===============================================
 
-Current Version: v6
+Current Version: v7
 
 See `Revision History`_ for additional discussion.
 
 Abstract
 ========
 
-This document proposes the **AgentOS component registry (ACR)**.  ACR allows for
-easy composition and reuse of key top-level AgentOS components (e.g.
-environments and policies) much like ``pip`` does for Python and ``APT`` does
-for Debian Linux.
+An AgentOS agent is composed of **components**.  A component is a shareable,
+swappable package that adheres to a specific API which an agent can incorporate
+into itself.  Currently, components correspond to the core AgentOS abstractions
+(i.e. Environments and Policies).  See the `Core Abstractions Design Doc
+<https://github.com/agentos-project/design_docs/blob/main/abstractions.rst>`_
+for more info.
+
+This document proposes the **AgentOS component registry (ACR)**.  ACR allows
+for easy composition and reuse of AgentOS components much like ``pip`` does for
+Python and ``APT`` does for Debian Linux.
+
+The ACR is integrated with the AgentOS command-line interface (CLI) and a
+centralized registry that provides information for discovering and installing
+components.  It is also a part of the AgentOS runtime which exposes installed
+components within your Agent code.
+
 
 Rationale
 =========
@@ -26,8 +38,8 @@ not matter for composition.
 
 The ACR enables this vision by:
 
-* Maintaining a centralized registry of agent components including policies,
-  trainers, and environments.
+* Maintaining a centralized registry of agent components including policies and
+  environments.
 
 * Providing a versioning system for these components
 
@@ -50,11 +62,11 @@ First, ensure AgentOS is installed in your environment::
 
 Then create a new agent::
 
-  mkdir my_agent
-  cd my_agent
-  agentos init
+  mkdir demo_agent
+  cd demo_agent
+  agentos init . -n DemoAgent
 
-This generates a minimal agent in your ``my_agent`` directory.  The minimal
+This generates a minimal agent in your ``demo_agent`` directory.  The minimal
 agent is not particularly interesting though, so let's flesh it out.
 
 Let's take a look at the environments available to our agent in the ACR::
@@ -69,7 +81,9 @@ the in-browser game `2048 <https://en.wikipedia.org/wiki/2048_(video_game)>`_::
 
 The above command not only installs the 2048 environment into your agent
 directory, but it also updates our agent directory's ``agent.ini`` file to
-record the specifics of the components we've installed.
+record the specifics of the components we've installed. Details about the
+``agent.ini`` file can be found `here
+<https://github.com/agentos-project/design_docs/blob/main/abstractions.rst#agent-definition-file>`_.
 
 Our agent will now run against the 2048 game environment.  Now, let's install a
 policy that our agent can use to determine which action to take when given a
@@ -78,57 +92,47 @@ set of observations::
     agentos install policy q_table
 
 We'll use a Q table to track the quality of the actions available to our agent
-in a given state.
+in a given state. Policies generally come with an `improve()` method which gets
+called when the agent wants to update its policy based upon experience.
+Policies are also often backed by state (in this case, a data structure
+representing the Q table).
 
-While we've installed a policy, our agent still lacks the ability to learn.
-Let's fix that by installing a `trainer component that learns via the SARSA
-algorithm
-<https://en.wikipedia.org/wiki/State%E2%80%93action%E2%80%93reward%E2%80%93state%E2%80%93action>`_
-into our agent::
-
-  agentos install trainer sarsa
-
-Trainer components specify how to modify a policy as an agent gains experience.
-After the install completes, our ``agent.ini`` will again be updated to record
-the fact that our agent will be using SARSA to learn how to play 2048.
-
-We can now train our agent so that its policy becomes better at playing 2048 as
+We can now tell our agent to learn so that it becomes better at playing 2048 as
 follows::
 
-  agentos train agent.ini 1000
+  agentos learn -f agent.ini 1000
 
 And we can run our agent as follows::
 
-  agentos run agent.ini
+  agentos run -f agent.ini
 
 As you let your agent run, you'll get periodic updates on its performance
-improvement as it gains more experience playing 2048 and learns via the SARSA
+improvement as it gains more experience playing 2048 and learns via the Q-table
 algorithm.
 
-Some agents will only learn when called via ``agentos train`` and will have
+Some agents will only learn when called via ``agentos learn`` and will have
 their policy frozen during ``agentos run``.  Other agents will learn whenever
 they are run via either method.  This is design decision is up to the agent
 developer and the algorithm they are implementing.
 
 Now suppose we become convinced that a `Deep Q-Learning network
 <https://en.wikipedia.org/wiki/Q-learning>`_ would be more amenable to learning
-2048.  Switching our policy and trainer is as easy as running::
+2048.  Switching our policy is as easy as running::
 
   agentos install policy dqn
-  agentos install trainer dqn_sgd
 
-Because you are installing a second policy and second trainer, ACR will ask you
-which you'd like to make default.  All installed components are always
-programmatically accessible, but ACR initializes the members of the ``Agent``
-class with the default components.
+Because you are installing a second policy, ACR will ask you which you'd like
+to make default.  All installed components are always programmatically
+accessible as members in the agent (e.g. ``self.environments.2048``), but ACR
+initializes the members ``Agent.environment`` and ``Agent.policy`` with the
+default policy and environment respectively.
 
-Go ahead and select ``dqn`` as the default policy and ``dqn_sgd`` as your
-default trainer.  Again, ``agent.ini`` will be updated to reflect that we are
-now using a DQN-based learning algorithm instead of a SARSA-based learning
-algorithm.
+Go ahead and set ``dqn`` as the default policy.  Again, ``agent.ini`` will be
+updated to reflect that we are now using a DQN-based learning algorithm instead
+of a Q-table based learning algorithm.
 
-Now when you train your agent again (``agentos train``) your agent will be
-using Q-learning with a deep Q network to learn 2048.
+Now when you tell your agent to learn again (``agentos learn``) your agent will
+be using Q-learning with a deep Q network to learn 2048.
 
 
 Using components within code
@@ -139,68 +143,76 @@ programmatically::
 
     from agentos import Agent
 
-    class SimpleAgent(Agent):
-        def train(self):
-            self.trainer.train(self.policy)
+    class DemoAgent(Agent):
+        def learn(self):
+            self.policy.improve()
 
         def advance(self):
             next_action = self.policy.decide(self.obs)
             self.obs, done, reward, info  = self.environment.step(next_action)
 
-The ``acr`` module automatically loads default components into class members of
-the agent such as ``self.policy`` and ``self.environment``.  If you have more
-than one component installed for a particular role (e.g. two complementary
-environments) then you can access each component via their name in the ``acr``
-module::
+ACR automatically loads default components into class members of the agent such
+as ``self.policy`` and ``self.environment``.  If you have more than one
+component installed for a particular role (e.g. two complementary environments)
+then you can access each component within the agent via their name::
 
-  import acr
-  acr.environment.2048.step()
+  self.environments.2048.step()
   ...
-  acr.environment.cartpole.step()
+  self.environments.cartpole.step()
 
 
 MVP
 ===
 
-* ACR will be able to access a centralized registry of policies, environments,
-  and trainers.
+* ACR will be able to access a centralized registry of policies and
+  environments
 
   * V0 target: the list will be a yaml file stored in the AgentOS repository
 
 * Each registry entry will be structured as follows::
 
     component_name:
-      type: [policy | environment | trainer]
+      type: [policy | environment]
+      agent_os_versions:
+        - [compatible with this AgentOS version]
+        - [compatible with this AgentOS version]
       description: [component description]
       releases:
         - name: [version_1_name]
           hash: [version_1_hash]
           github_url: [url of version 1 repo]
+          file_path: [path to py file containing class to import]
           class_name: [fully qualified class name of version 1]
           requirements_path: [path to version 1 requirements file]
 
         - name: [version_2_name]
           hash: [version_2_hash]
           github_url: [url of version 2 repo]
-          class_name: [fully qualified class name of version 2]
+          file_path: [path to py file containing class to import]
+          class_name: [fully qualified class name of version 1]
           requirements_path: [path to version 2 requirements file]
 
   for example::
 
     2048:
       type: environment
+      agent_os_versions:
+        - 1.0.0
+        - 1.1.0
       description: "An environment that simulates the 2048 game"
       releases:
         - name: 1.0.0
           hash: aeb938f
           github_url: https://github.com/example-proj/example-repo
-          class_name: main.2048
+          file_path: environment.py
+          class_name: 2048
           requirements_path: requirements.txt
 
         - name: 1.1.0
           hash: 3939aa1
           github_url: https://github.com/example-proj/example-repo
-          class_name: main.2048
+          file_path: environment.py
+          class_name: 2048
           requirements_path: requirements.txt
 
 * Each component will be a (v0: Python) project stored in a Github repo.
@@ -245,9 +257,33 @@ Long Term Plans
 
 * A simple way for component authors to submit components to the registry via
   command-line and web interface.
+    * For example, this might be two commands:
+        * ``agentos package ...`` - packages up the component
+        * ``agentos register ...`` - pushes the component listing to the
+          centralized registry
 
 * A way for agent developers to detect and resolve requirement conflicts
   between already-installed and soon-to-be-installed components.
+
+* Agents are not components, but it still seems like it'd be useful to share
+  agents.  Long term, we will extend the registry system to encompass agents as
+  well.
+
+* Break ACR into two components:
+
+    * Package management functionality:
+        * ``agentos install``
+        * ``agentos search``
+        * ``agentos uninstall``
+        * ``agentos status`` - new command to show what's available in your
+          agent
+
+    * Git-like mapping tools
+        * commands to map particular versions of installed components to
+          particular members available in the Agent class.
+
+* Expose the state backing a particular policy as a separate, shareable
+  component.
 
 
 FAQ
@@ -257,9 +293,13 @@ FAQ
 tuned based on the particulars of the environment and the agent.  How do I do
 this?
 
-**A:** Each component maintains exposes a configuration in its ``agent.ini``
-entry. This allows for both manual tweaking of hyperparameters as well as
-programmatic exploration and tuning.
+**A:** Each component exposes a configuration in its ``agent.ini`` entry. This
+allows for both manual tweaking of hyperparameters as well as programmatic
+exploration and tuning (with e.g. `sk-learn grid search
+<https://scikit-learn.org/stable/modules/grid_search.html>`_).  See also the
+example ``agent.ini`` file `here
+<https://github.com/agentos-project/design_docs/blob/main/abstractions.rst#agent-definition-file>`_.
+
 
 **Q:** How can I reuse a policy from a previous run?
 
@@ -277,7 +317,7 @@ is accessible programmatically via shortcuts within the agent like
 In an agent where you have, for example, two policies installed (e.g.
 ``random`` and ``dqn``) the default (as determined by ``agent.ini``) will be
 accessible within the agent as ``self.policy``, but both will always be
-accessible at ``acr.policy.random`` and ``acr.policy.dqn`` respectively.
+accessible at ``acr.policies.random`` and ``acr.policies.dqn`` respectively.
 
 **Q:** How does AgentOS locate the main code of the component within the Github
 repo? Must all components have a well known entry point (e.g., a file called
@@ -364,7 +404,7 @@ TODO and open questions
   * Can we just use the Python package system and pip directly?
 
 * What are the key components that we want to expose in our registry?
-  Candidates: Agents, Policies, Environments, Trainers.
+  Candidates: Agents, Policies, Environments, Policy-state
 
 Revision History
 ================
@@ -373,10 +413,11 @@ Revision History
 
   * `AgentOS Component Registry <https://github.com/agentos-project/design_docs/discussions/7>`_
 
-* Pull requests:
+* Important pull requests:
 
   * `design_docs #1: AgentOS registry <https://github.com/agentos-project/design_docs/pull/1>`_
   * `design_docs #2: Avoid merging requirements on component install <https://github.com/agentos-project/design_docs/pull/2>`_
+  * `design_docs #10: Design doc updates: Abstractions and Registry <https://github.com/agentos-project/design_docs/pull/10>`_
 
 * Document version history:
 
@@ -395,6 +436,23 @@ Revision History
 
     * Update FAQ to reflect recent discussions on core abstractions
 
+  * `v7 <https://github.com/agentos-project/design_docs/blob/271b7450c0d1c50540f170857d9a6357acbd8fd7/registry.rst>`_
+
+    * Address discussion feedback `here
+      <https://github.com/agentos-project/design_docs/discussions/7#discussioncomment-361544>`_.
+
+    * Address meeting feedback `here
+      <https://github.com/agentos-project/design_docs/discussions/7#discussioncomment-364414>`_.
+
+    * Rewrote abstract to better define terms
+
+    * Removed Trainer abstraction
+
+    * Reworked demo (no Trainer, updates to CLI interface)
+
+    * Update registry entry spec
+
+    * Added more long term plans
 
 Further Reading
 ===============
