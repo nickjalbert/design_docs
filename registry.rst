@@ -435,7 +435,7 @@ Revision History
 
     * Update FAQ to reflect recent discussions on core abstractions
 
-  * `v7 <https://github.com/agentos-project/design_docs/blob/TODO/registry.rst>`_
+  * `v7 <https://github.com/agentos-project/design_docs/blob/271b7450c0d1c50540f170857d9a6357acbd8fd7/registry.rst>`_
 
     * Address discussion feedback `here
       <https://github.com/agentos-project/design_docs/discussions/7#discussioncomment-361544>`_.

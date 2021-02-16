@@ -329,7 +329,7 @@ Revision History
 
     * Added long-term plans section
 
-  * `v4 <https://github.com/agentos-project/design_docs/blob/TODO/abstractions.rst>`_
+  * `v4 <https://github.com/agentos-project/design_docs/blob/271b7450c0d1c50540f170857d9a6357acbd8fd7/abstractions.rst>`_
 
     * Added user stories
 
