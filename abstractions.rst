@@ -2,7 +2,7 @@
 AgentOS Core Abstractions
 =========================
 
-Current Version: v3
+Current Version: v4
 
 See `Revision History`_ for additional discussion.
 
@@ -210,17 +210,21 @@ Combining our example code from above, our agent's ``agent.ini`` file will
 look like the following::
 
       [Agent]
-      class = main.MyAgent
+      file_path = agent.py
+      class_name = MyAgent
 
       [Policy]
-      class = policy.DeepQNetwork
+      file_path = policy.py
+      class_name = DeepQNetwork
       architecture = [10,100,100]
       buffer_size = 10000
       batch_size = 100
       storage = ./policy/
 
       [Environment]
-      class = environment.Corridor
+      file_path = environment.py
+      class_name = Corridor
+
 
 
 Note that the ``agent.ini`` contains both the location of the primary
@@ -324,3 +328,9 @@ Revision History
     * Default implementation of `Agent.advance` is NotImplementedError
 
     * Added long-term plans section
+
+  * `v4 <https://github.com/agentos-project/design_docs/blob/TODO/abstractions.rst>`_
+
+    * Added user stories
+
+    * Updated ``agent.ini`` example
