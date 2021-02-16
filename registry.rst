@@ -104,7 +104,7 @@ follows::
 
 And we can run our agent as follows::
 
-  agentos run agent.ini
+  agentos run -f agent.ini
 
 As you let your agent run, you'll get periodic updates on its performance
 improvement as it gains more experience playing 2048 and learns via the Q-table
